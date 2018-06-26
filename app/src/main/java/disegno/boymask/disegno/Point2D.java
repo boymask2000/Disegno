@@ -35,4 +35,7 @@ public class Point2D {
     public void draw(Offset off, Canvas canvas) {
         canvas.drawText("" + id, off.getPosition() + off.getFatt() * x, off.getPosition() + off.getFatt() * y, new Paint());
     }
+    public float distanza(Point2D p){
+        return (float) Math.sqrt((x-p.getX())*(x-p.getX())+(y-p.getY())*(y-p.getY()));
+    }
 }

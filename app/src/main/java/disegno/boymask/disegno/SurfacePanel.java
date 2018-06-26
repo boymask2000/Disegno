@@ -14,6 +14,7 @@ import android.view.SurfaceView;
  * Created by gposabella on 30/05/2016.
  */
 public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback {
+    private static final int SIZE = 10;
     private final Context context;
     private final MainActivity mainActivity;
     private MyThread mythread;
@@ -44,8 +45,70 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
         doDraw(canvas);
     }
 
+    Retta rette[] = new Retta[SIZE + 1];
+    Retta r1;
+    Retta r2;
+    Retta baseLeft;
+    Retta baseRight;
+    Point2D p1;
+    Point2D p2 ;Point2D centro;
     //***************************************************************************************
     void doDraw(Canvas canvas) {
+
+         centro = new Point2D(screenWidth / 2, screenWidth / 2);
+         p1 = new Point2D(10, screenWidth - 20);
+         p2 = new Point2D(screenWidth - 10, screenWidth - 20);
+
+        baseLeft = Retta.createRetta(centro, p1);
+        baseRight = Retta.createRetta(centro, p2);
+
+        float baseSize = p1.distanza(p2);
+
+        Point2D pLineTop = new Point2D(centro.getX(), centro.getY() + 50);
+        Retta top = Retta.createRettaHorizontal(pLineTop);
+        Point2D focusRight = new Point2D(screenWidth - 10, centro.getY());
+        Point2D focusLeft = new Point2D(10, centro.getY());
+
+
+        r1 = Retta.createRetta(p2, focusLeft);
+        r2 = Retta.createRetta(p1, focusRight);
+
+
+        for (int i = 0; i < SIZE; i++) {
+            float x = p1.getX() + i * baseSize / SIZE;
+            Point2D pp = new Point2D(x, p1.getY());
+            Retta rr = Retta.createRetta(centro, pp);
+            rette[i] = rr;
+        }
+
+        createSvoltaDestra(canvas,2);
+
+        Retta.draw(canvas);
+    }
+
+    private void createSvoltaDestra(Canvas canvas,int metri) {
+        Retta d = rette[metri];
+        Point2D p = d.intersect(r2);
+        Retta rr = Retta.createRettaHorizontal(p);
+        Point2D q1 = rr.intersect(baseRight);
+
+        Retta d2 = rette[metri + 1];
+        Point2D p2 = d2.intersect(r2);
+        Retta rr2 = Retta.createRettaHorizontal(p2);
+        Point2D q2 = rr2.intersect(baseRight);
+
+        int altezzaPorta=3;
+
+        Point2D pPorta=new Point2D(p2.getX(), altezzaPorta*SIZE);
+        Retta dir=Retta.createRetta(centro, pPorta);
+        Retta rporta = Retta.createRettaVertical(pPorta);
+        Point2D porta1=dir.intersect(rporta);
+        Point2D porta2=r2.intersect(rporta);
+
+        drawLine(canvas,porta1,porta2 );
+    }
+
+    void doDraw1(Canvas canvas) {
         float x0 = -30;
         float y0 = -30;
         float z0 = 10;
@@ -69,7 +132,7 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
 
         drawLine(offset, canvas, p7, p3);
         drawLine(offset, canvas, p7, p4);
-      //  drawLine(offset, canvas, p7, p8);
+        //  drawLine(offset, canvas, p7, p8);
         drawLine(offset, canvas, p6, p8);
         drawLine(offset, canvas, p5, p8);
         drawLine(offset, canvas, p5, p3);
@@ -91,7 +154,19 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
                 off.getPosition() + off.getFatt() * pp2.getY(),//
                 mPaint);
     }
+    private void drawLine(Canvas canvas,Point2D pp1,  Point2D pp2 ) {
 
+        mPaint.setStrokeWidth(4);
+
+
+
+        canvas.drawLine(
+                 pp1.getX(), //
+                 pp1.getY(), //
+                 pp2.getX(), //
+                 pp2.getY(),//
+                mPaint);
+    }
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         mythread.setRunning(false);
