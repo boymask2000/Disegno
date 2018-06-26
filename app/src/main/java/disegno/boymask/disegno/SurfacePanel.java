@@ -46,49 +46,49 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
 
     //***************************************************************************************
     void doDraw(Canvas canvas) {
-        Point3D lista[] = new Point3D[]{
-                new Point3D(0, 0, 0),
-                new Point3D(0, 0, 100),
-                new Point3D(0, 100, 0),
-                new Point3D(100, 0, 0),
-                new Point3D(0, 100, 100),
-                new Point3D(100, 0, 100),
-                new Point3D(100, 100, 0)
-        };
-        Point3D p1 = new Point3D(0, 0, 0);
-        Point3D p2 = new Point3D(0, 0, 50);
-        Point3D p3 = new Point3D(0, 50, 0);
-        Point3D p4 = new Point3D(50, 0, 0);
-        Point3D p5 = new Point3D(0, 50, 50);
-        Point3D p6 = new Point3D(50, 0, 50);
-        Point3D p7 = new Point3D(50, 50, 0);
-        Point3D p8 = new Point3D(50, 50, 50);
+        float x0 = -30;
+        float y0 = -30;
+        float z0 = 10;
 
-        drawLine(canvas, p1, p2);
-       drawLine(canvas, p1, p3);
-        drawLine(canvas, p1, p4);
-        drawLine(canvas, p2, p5);
-        drawLine(canvas, p2, p6);
+        Offset offset = new Offset(screenWidth / 4, 50);
 
-        drawLine(canvas, p7, p3);
-        drawLine(canvas, p7, p4);
-        drawLine(canvas, p7, p8);
-        drawLine(canvas, p6, p8);
-        drawLine(canvas, p5, p8);
-        drawLine(canvas, p5, p3);
-        drawLine(canvas, p4, p6);
+        Point3D p1 = new Point3D(1, x0, y0, z0);
+        Point3D p2 = new Point3D(2, x0, y0, z0 + 50);
+        Point3D p3 = new Point3D(3, x0, y0 + 50, z0);
+        Point3D p4 = new Point3D(4, x0 + 50, y0, z0);
+        Point3D p5 = new Point3D(5, x0, y0 + 50, z0 + 50);
+        Point3D p6 = new Point3D(6, x0 + 50, y0, z0 + 50);
+        Point3D p7 = new Point3D(7, x0 + 50, y0 + 50, z0);
+        Point3D p8 = new Point3D(8, x0 + 50, y0 + 50, z0 + 50);
+
+        drawLine(offset, canvas, p1, p2);
+        drawLine(offset, canvas, p1, p3);
+        drawLine(offset, canvas, p1, p4);
+        drawLine(offset, canvas, p2, p5);
+        drawLine(offset, canvas, p2, p6);
+
+        drawLine(offset, canvas, p7, p3);
+        drawLine(offset, canvas, p7, p4);
+      //  drawLine(offset, canvas, p7, p8);
+        drawLine(offset, canvas, p6, p8);
+        drawLine(offset, canvas, p5, p8);
+        drawLine(offset, canvas, p5, p3);
+        drawLine(offset, canvas, p4, p6);
     }
 
-    private void drawLine(Canvas canvas, Point3D p1, Point3D p2) {
+    private void drawLine(Offset off, Canvas canvas, Point3D p1, Point3D p2) {
         Point2D pp1 = Converter.convert(p1);
         Point2D pp2 = Converter.convert(p2);
         mPaint.setStrokeWidth(4);
-int fatt=1;
+
+        pp1.draw(off, canvas);
+        pp2.draw(off, canvas);
+
         canvas.drawLine(
-                screenWidth/2 + fatt*pp1.getX(), //
-                screenWidth/2 + fatt*pp1.getY(), //
-                screenWidth/2 + fatt*pp2.getX(), //
-                screenWidth/2 + fatt*pp2.getY(),//
+                off.getPosition() + off.getFatt() * pp1.getX(), //
+                off.getPosition() + off.getFatt() * pp1.getY(), //
+                off.getPosition() + off.getFatt() * pp2.getX(), //
+                off.getPosition() + off.getFatt() * pp2.getY(),//
                 mPaint);
     }
 

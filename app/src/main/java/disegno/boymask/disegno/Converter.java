@@ -13,6 +13,8 @@ public class Converter {
         float xp = x / (1 + y / distanza);
         float yp = (z * distanza + y * altezza) / (y + distanza);
 
-        return new Point2D(xp, yp);
+        Point2D p = new Point2D(xp, yp);
+        p.setId(p3.getId());
+        return p;
     }
 }
