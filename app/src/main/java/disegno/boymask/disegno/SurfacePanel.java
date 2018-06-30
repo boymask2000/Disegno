@@ -20,13 +20,41 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
     private MyThread mythread;
     private int screenWidth;
     private Paint mPaint = new Paint();
+    Retta rette[] = new Retta[SIZE + 1];
+    Retta r1;
+    Retta r2;
+    Retta baseLeft;
+    Retta baseRight;
+    Point2D basep1;
+    Point2D basep2;
+    Point2D centro;
 
+    private int[][] table = new int[10][10];
 
-    private int tentativi;
+    private void init() {
+        table[2][0] = 1;
+        table[2][1] = 1;
+        table[2][2] = 1;
+        table[2][3] = 1;
+        table[2][4] = 1;
+        table[2][5] = 1;
+        table[2][6] = 1;
+        table[2][7] = 1;
+        table[2][8] = 1;
+        table[2][9] = 1;
+
+        table[1][5] = 1;
+        table[1][2] = 1;
+        table[3][4] = 1;
+
+        table[1][8] = 1;
+        table[3][8] = 1;
+    }
 
 
     public SurfacePanel(Context ctx, AttributeSet attrSet, MainActivity mainActivity) {
         super(ctx, attrSet);
+        init();
         context = ctx;
         this.mainActivity = mainActivity;
         screenWidth = mainActivity.getScreenWidth();
@@ -45,67 +73,104 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
         doDraw(canvas);
     }
 
-    Retta rette[] = new Retta[SIZE + 1];
-    Retta r1;
-    Retta r2;
-    Retta baseLeft;
-    Retta baseRight;
-    Point2D p1;
-    Point2D p2 ;Point2D centro;
+
     //***************************************************************************************
     void doDraw(Canvas canvas) {
 
-         centro = new Point2D(screenWidth / 2, screenWidth / 2);
-         p1 = new Point2D(10, screenWidth - 20);
-         p2 = new Point2D(screenWidth - 10, screenWidth - 20);
+        centro = new Point2D(screenWidth / 2, screenWidth / 2);
+        basep1 = new Point2D(10, screenWidth - 20);
+        basep2 = new Point2D(screenWidth - 10, screenWidth - 20);
 
-        baseLeft = Retta.createRetta(centro, p1);
-        baseRight = Retta.createRetta(centro, p2);
+        baseLeft = Retta.createRetta(centro, basep1, true);
+        baseRight = Retta.createRetta(centro, basep2, true);
 
-        float baseSize = p1.distanza(p2);
+        float baseSize = basep1.distanza(basep2);
 
         Point2D pLineTop = new Point2D(centro.getX(), centro.getY() + 50);
-        Retta top = Retta.createRettaHorizontal(pLineTop);
+        Retta top = Retta.createRettaHorizontal(pLineTop, false);
         Point2D focusRight = new Point2D(screenWidth - 10, centro.getY());
         Point2D focusLeft = new Point2D(10, centro.getY());
 
 
-        r1 = Retta.createRetta(p2, focusLeft);
-        r2 = Retta.createRetta(p1, focusRight);
+        r1 = Retta.createRetta(basep2, focusLeft, false);
+        r2 = Retta.createRetta(basep1, focusRight, false);
 
 
         for (int i = 0; i < SIZE; i++) {
-            float x = p1.getX() + i * baseSize / SIZE;
-            Point2D pp = new Point2D(x, p1.getY());
-            Retta rr = Retta.createRetta(centro, pp);
+            float x = basep1.getX() + i * baseSize / SIZE;
+            Point2D pp = new Point2D(x, basep1.getY());
+            Retta rr = Retta.createRetta(centro, pp, false);
             rette[i] = rr;
         }
 
-        createSvoltaDestra(canvas,2);
+        create(canvas, 2, 0, 0, 1);
 
+/*
+        createSvoltaSinistra(canvas, 2);
+*/
         Retta.draw(canvas);
+
     }
 
-    private void createSvoltaDestra(Canvas canvas,int metri) {
+    private void create(Canvas canvas, int x, int y, int dx, int dy) {
+        if (dy > 0) {
+            for (int i = y; i < 10; i++) {
+                if (table[x - 1][i] == 1)
+                    createSvoltaSinistra(canvas, i);
+                if (table[x + 1][i] == 1)
+                    createSvoltaDestra(canvas, i);
+            }
+        }
+    }
+
+    private void createSvoltaDestra(Canvas canvas, int metri) {
         Retta d = rette[metri];
-        Point2D p = d.intersect(r2);
-        Retta rr = Retta.createRettaHorizontal(p);
+        Point2D p = d.intersect(r1);
+        Retta rr = Retta.createRettaHorizontal(p, false);
         Point2D q1 = rr.intersect(baseRight);
 
         Retta d2 = rette[metri + 1];
-        Point2D p2 = d2.intersect(r2);
-        Retta rr2 = Retta.createRettaHorizontal(p2);
+        Point2D p2 = d2.intersect(r1);
+        Retta rr2 = Retta.createRettaHorizontal(p2, false);
         Point2D q2 = rr2.intersect(baseRight);
 
-        int altezzaPorta=3;
+        int altezzaPorta = 2;
 
-        Point2D pPorta=new Point2D(p2.getX(), altezzaPorta*SIZE);
-        Retta dir=Retta.createRetta(centro, pPorta);
-        Retta rporta = Retta.createRettaVertical(pPorta);
-        Point2D porta1=dir.intersect(rporta);
-        Point2D porta2=r2.intersect(rporta);
+        Point2D pPorta = new Point2D(basep2.getX(), basep2.getY() - altezzaPorta * screenWidth / SIZE);
+        Retta dir = Retta.createRetta(centro, pPorta, false);
+        Retta q1Dir = Retta.createRettaVertical(q1, false);
+        Retta q2Dir = Retta.createRettaVertical(q2, false);
+        Point2D porta1 = q1Dir.intersect(dir);
+        Point2D porta2 = q2Dir.intersect(dir);
 
-        drawLine(canvas,porta1,porta2 );
+        drawLine(canvas, porta1, q1);
+        drawLine(canvas, porta2, q2);
+        drawLine(canvas, porta1, porta2);
+    }
+
+    private void createSvoltaSinistra(Canvas canvas, int metri) {
+        Retta d = rette[metri];
+        Point2D p = d.intersect(r1);
+        Retta rr = Retta.createRettaHorizontal(p, false);
+        Point2D q1 = rr.intersect(baseLeft);
+
+        Retta d2 = rette[metri + 1];
+        Point2D p2 = d2.intersect(r1);
+        Retta rr2 = Retta.createRettaHorizontal(p2, false);
+        Point2D q2 = rr2.intersect(baseLeft);
+
+        int altezzaPorta = 2;
+
+        Point2D pPorta = new Point2D(basep1.getX(), basep2.getY() - altezzaPorta * screenWidth / SIZE);
+        Retta dir = Retta.createRetta(centro, pPorta, false);
+        Retta q1Dir = Retta.createRettaVertical(q1, false);
+        Retta q2Dir = Retta.createRettaVertical(q2, false);
+        Point2D porta1 = q1Dir.intersect(dir);
+        Point2D porta2 = q2Dir.intersect(dir);
+
+        drawLine(canvas, porta1, q1);
+        drawLine(canvas, porta2, q2);
+        drawLine(canvas, porta1, porta2);
     }
 
     void doDraw1(Canvas canvas) {
@@ -154,19 +219,20 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
                 off.getPosition() + off.getFatt() * pp2.getY(),//
                 mPaint);
     }
-    private void drawLine(Canvas canvas,Point2D pp1,  Point2D pp2 ) {
+
+    private void drawLine(Canvas canvas, Point2D pp1, Point2D pp2) {
 
         mPaint.setStrokeWidth(4);
 
 
-
         canvas.drawLine(
-                 pp1.getX(), //
-                 pp1.getY(), //
-                 pp2.getX(), //
-                 pp2.getY(),//
+                pp1.getX(), //
+                pp1.getY(), //
+                pp2.getX(), //
+                pp2.getY(),//
                 mPaint);
     }
+
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         mythread.setRunning(false);
@@ -236,8 +302,6 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
             }
         }.start();
 
-        tentativi++;
-        mainActivity.setTentativi(tentativi);
 
         if (mainActivity.getTable().isRisolto())
             PopupMessage.info(mainActivity, "Completato !");
@@ -271,10 +335,6 @@ public class SurfacePanel extends SurfaceView implements SurfaceHolder.Callback 
 
     public void update() {
         invalidate();
-    }
-
-    public void reset() {
-        tentativi = 0;
     }
 
 
